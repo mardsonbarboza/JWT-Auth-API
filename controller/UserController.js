@@ -97,7 +97,38 @@ class UserController {
             return res.status(500).json({ error: 'Erro interno do servidor.' });
         }
     }
-    
+    async login(req,res){
+        var {email,password} = req.body;
+
+        var erros = validationResult(req);
+        if (!erros.isEmpty()) {
+            return res.status(400).json({erros:erros.array()});
+        }
+        var verifyEmail = await User.findByEmail(email);
+        if (!verifyEmail) {
+            return res.status(400).json({msg:'Email ou Senha incorreto'});
+        }
+        var isPasswordValid = await bycript.compare(password,verifyEmail.password);
+        if (!isPasswordValid) {
+            return res.status(400).json({msg:'Email ou senha incorreto'});
+        }
+        //gerar token
+        var token = jwt.sign({
+            id:verifyEmail.id,
+            email:email,
+            isVerifield:verifyEmail.isVerifield
+        },SECRET,{expiresIn: '1h' });
+
+        console.log(token);
+        
+        res.cookie('token',token,{
+            httpOnly:true,//impede acesso ao cookie via js no navegador
+            secure:process.env.NODE_ENV === 'production', //http em produção
+            sameSite: 'strict',
+            maxAge: 3600000 //expira em uma hora
+        });
+        return res.status(200).json({msg:'login bem sucedido',token});
+    }
     
 }
 
