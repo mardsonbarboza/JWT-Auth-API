@@ -2,11 +2,12 @@ const { validationResult } = require('express-validator');
 const User = require('../model/User');
 const SECRET = process.env.SECRET;
 const jwt = require('jsonwebtoken');
-const nodeMailer = require('nodemailer')
+const nodeMailer = require('nodemailer');
+const bycript = require('bcryptjs');
 const transporter = nodeMailer.createTransport({
     host: 'sandbox.smtp.mailtrap.io',
     port: 587,
-    secure: false, // use false para STARTTLS; true para SSL na porta 465
+    secure: false, // use false para STARTTLS; true para SSL     na porta 465
     auth: {
         user: '11d0a14be06170',
         pass: 'f9e0fceef5bef3'
@@ -29,8 +30,8 @@ class UserController {
             if (emailExists) {
                 return res.status(409).json({ msg: 'Email já cadastrado. Tente outro email.' });
             }
-                
-                var user = await User.create(name, email, password);
+                var hash = await bycript.hash(password, 10);
+                var user = await User.create(name, email,hash);
                 console.log("Usuário criado:", user.result);
                 
                 if (user.status) {
