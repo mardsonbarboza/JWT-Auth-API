@@ -8,4 +8,7 @@ router.post('/user',[
     check('password', 'A senha deve ter no mínimo 6 caracteres').isLength({ min: 6 })
 ],UserController.register);
 router.get('/confirm/:token', UserController.confirmToken);
+router.post('/login',[
+    check('email', 'E-mail inválido').optional().isEmail().normalizeEmail(),
+    UserController.login])
 module.exports = router;
