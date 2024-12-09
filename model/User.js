@@ -20,6 +20,11 @@ class User {
     async updateIsVerifield(id){
         return await knex.update({isVeryfield:1}).where({id}).table('users') 
     }
+    async updatePassword(userId, newPassword){
+       
+            await knex('users').where({id:userId}).update({password:newPassword});
+            return { status: true, message: 'Senha atualizada com sucesso' }; 
+    }
 }
 
 module.exports = new User();
